@@ -8,10 +8,20 @@ import grassFragmentShader from './shaders/grass_fragment.glsl'
 
 // Scene
 const scene = new THREE.Scene()
+const scene_width = 20
+const scene_length = 20
 
 // Grid Helper
-const gridHelper = new THREE.GridHelper(100, 100);
-scene.add(gridHelper);
+const grassFloorTexture = new THREE.TextureLoader().load("textures/grass_floor.jpg");
+grassFloorTexture.wrapS = grassFloorTexture.wrapT = THREE.RepeatWrapping;
+grassFloorTexture.repeat.set( 100, 100 );
+var grassFloorMaterial = new THREE.MeshStandardMaterial( { map: grassFloorTexture, side: THREE.DoubleSide } );
+
+var mesh = new THREE.Mesh( new THREE.PlaneGeometry( scene_width, scene_length ), grassFloorMaterial );
+mesh.position.y = 0.0;
+mesh.rotation.x = - Math.PI / 2;
+mesh.receiveShadow = true;
+scene.add( mesh );
 
 // Sizes
 const sizes = {
@@ -87,7 +97,8 @@ const leavesMaterial1 = new THREE.ShaderMaterial({
   side: THREE.DoubleSide
 });
 
-const instanceNumber1 = 20000;
+const grassDensity1 = 20000 // per 10x10 square
+const instanceNumber1 = grassDensity1 * (scene_width / 10) * (scene_length / 10);
 const dummy1 = new THREE.Object3D();
 
 const geometry1 = new THREE.PlaneGeometry(0.1, 1, 1, 4);
@@ -101,9 +112,9 @@ scene.add(instancedMesh1);
 for (let i = 0; i < instanceNumber1; i++) {
 
   dummy1.position.set(
-    (Math.random() - 0.5) * 10,
+    (Math.random() - 0.5) * scene_width,
     0,
-    (Math.random() - 0.5) * 10
+    (Math.random() - 0.5) * scene_length
   );
 
   dummy1.scale.setScalar(0.5 + Math.random() * 0.5);
@@ -141,7 +152,8 @@ const leavesMaterial2 = new THREE.ShaderMaterial({
   side: THREE.DoubleSide
 });
 
-const instanceNumber2 = 1000;
+const grassDensity2 = 1000 // per 10x10 square
+const instanceNumber2 = grassDensity2 * (scene_width / 10) * (scene_length / 10);
 const dummy2 = new THREE.Object3D();
 
 const geometry2 = new THREE.PlaneGeometry(0.1, 1, 1, 4);
@@ -155,9 +167,9 @@ scene.add(instancedMesh2);
 for (let i = 0; i < instanceNumber2; i++) {
 
   dummy2.position.set(
-    (Math.random() - 0.5) * 10,
+    (Math.random() - 0.5) * scene_width,
     0,
-    (Math.random() - 0.5) * 10
+    (Math.random() - 0.5) * scene_length
   );
 
   dummy2.scale.setScalar(0.5 + Math.random() * 0.5);
@@ -195,7 +207,8 @@ const leavesMaterial3 = new THREE.ShaderMaterial({
   side: THREE.DoubleSide
 });
 
-const instanceNumber3 = 1000;
+const grassDensity3 = 1000 // per 10x10 square
+const instanceNumber3 = grassDensity3 * (scene_width / 10) * (scene_length / 10);
 const dummy3 = new THREE.Object3D();
 
 const geometry3 = new THREE.PlaneGeometry(0.1, 1, 1, 4);
@@ -209,9 +222,9 @@ scene.add(instancedMesh3);
 for (let i = 0; i < instanceNumber3; i++) {
 
   dummy3.position.set(
-    (Math.random() - 0.5) * 10,
+    (Math.random() - 0.5) * scene_width,
     0,
-    (Math.random() - 0.5) * 10
+    (Math.random() - 0.5) * scene_length
   );
 
   dummy3.scale.setScalar(0.5 + Math.random() * 0.5);
