@@ -6,7 +6,7 @@ void main() {
     vec3 maskColor = texture2D( grassMask, vUv).rgb;
     vec3 baseColor = texture2D(grassTexture, vUv).rgb;
     gl_FragColor = vec4(baseColor, 1);
-    if (maskColor.r <= 0.001){
+    if (maskColor.r <= 0.5){
         discard;
     }
 }
