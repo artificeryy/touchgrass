@@ -3,8 +3,8 @@ import './style.css'
 import gsap from "gsap"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 
-import grassVertexShader from './grass_vertex.glsl'
-import grassFragmentShader from './grass_fragment.glsl'
+import grassVertexShader from './shaders/grass_vertex.glsl'
+import grassFragmentShader from './shaders/grass_fragment.glsl'
 
 // Scene
 const scene = new THREE.Scene()
@@ -37,6 +37,7 @@ scene.add(camera)
 // Renderer
 const canvas = document.querySelector(".webgl")
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true })
+renderer.setPixelRatio(2)
 renderer.setSize(sizes.width, sizes.height)
 renderer.render(scene, camera)
 
@@ -63,7 +64,8 @@ window.addEventListener('resize', () => {
 // Define clock
 const clock = new THREE.Clock();
 // Import grass texture
-const grassTexture = new THREE.TextureLoader().load("./textures/Grass-Blade_01.jpg")
+const grassTexture = new THREE.TextureLoader().load("./textures/grass_texture.png")
+const grassMask = new THREE.TextureLoader().load("./textures/grass_mask.png")
 
 // define uniform data
 const uniformData = {
@@ -71,8 +73,11 @@ const uniformData = {
     type: 'f',
     value: clock.getElapsedTime(),
   },
-  grassTexture : {
+  grassTexture: {
     value: grassTexture
+  },
+  grassMask: {
+    value:grassMask
   }
 };
 
