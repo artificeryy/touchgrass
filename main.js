@@ -1,17 +1,25 @@
 import * as THREE from "three";
-import './style.css'
-import gsap from "gsap"
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
+import './style.css';
+import gsap from "gsap";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-import grassVertexShader from './shaders/grass_vertex.glsl'
-import grassFragmentShader from './shaders/grass_fragment.glsl'
+import grassVertexShader from './shaders/grass_vertex.glsl';
+import grassFragmentShader from './shaders/grass_fragment.glsl';
 import { CharacterControls } from './characterControls';
 
 // Scene
 const scene = new THREE.Scene()
-const scene_width = 300
-const scene_length = 300
+const scene_width = 200
+const scene_length = 200
+
+// Load RBGE
+new RGBELoader()
+  .load("./textures/alps_field_4k.hdr", function (texture) {
+    texture.mapping = THREE.EquirectangularReflectionMapping;
+    scene.background = texture;
+  })
 
 // Grid Helper
 const grassFloorTexture = new THREE.TextureLoader().load("textures/grass_floor.jpg");
@@ -19,7 +27,7 @@ grassFloorTexture.wrapS = grassFloorTexture.wrapT = THREE.RepeatWrapping;
 grassFloorTexture.repeat.set(100, 100);
 var grassFloorMaterial = new THREE.MeshStandardMaterial({ map: grassFloorTexture, side: THREE.DoubleSide });
 
-var mesh = new THREE.Mesh(new THREE.PlaneGeometry(scene_width * 10, scene_length * 10), grassFloorMaterial);
+var mesh = new THREE.Mesh(new THREE.PlaneGeometry(scene_width, scene_length), grassFloorMaterial);
 mesh.position.y = 0.0;
 mesh.rotation.x = - Math.PI / 2;
 mesh.receiveShadow = true;
@@ -32,7 +40,7 @@ const sizes = {
 }
 
 // Light
-const light = new THREE.DirectionalLight(0xffffff, 1);
+const light = new THREE.DirectionalLight(0xffffff, 3);
 light.castShadow = true;
 light.position.set(0, 32, 64);
 scene.add(light)
@@ -47,13 +55,15 @@ const canvas = document.querySelector(".webgl")
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true })
 renderer.setPixelRatio(window.devicePixelRatio)
 renderer.setSize(sizes.width, sizes.height)
+renderer.toneMapping = THREE.ACESFilmicToneMapping
+renderer.toneMappingExposure = 0.6
 renderer.render(scene, camera)
 
 // Controls
 const orbitControls = new OrbitControls(camera, canvas);
 orbitControls.enableDamping = true
 orbitControls.minDistance = 5
-orbitControls.maxDistance = 50
+orbitControls.maxDistance = 15
 orbitControls.enablePan = false
 orbitControls.enableZoom = true
 orbitControls.maxPolarAngle = Math.PI / 2 - 0.05
@@ -75,7 +85,7 @@ window.addEventListener('keyup', (event) => {
 var characterControls
 new GLTFLoader().load("models/Fox.glb", function (gltf) {
   const model = gltf.scene
-  model.scale.set(0.03, 0.03, 0.03)
+  model.scale.set(0.025, 0.025, 0.025)
   model.traverse(function (obj) {
     if (obj.isMesh) obj.castShadow = true;
   });
@@ -135,7 +145,7 @@ const leavesMaterial1 = new THREE.ShaderMaterial({
   side: THREE.DoubleSide
 });
 
-const grassDensity1 = 2500 // per 10x10 square
+const grassDensity1 = 3500 // per 10x10 square
 const instanceNumber1 = grassDensity1 * (scene_width / 10) * (scene_length / 10);
 const dummy1 = new THREE.Object3D();
 
@@ -190,7 +200,7 @@ const leavesMaterial2 = new THREE.ShaderMaterial({
   side: THREE.DoubleSide
 });
 
-const grassDensity2 = 250 // per 10x10 square
+const grassDensity2 = 150 // per 10x10 square
 const instanceNumber2 = grassDensity2 * (scene_width / 10) * (scene_length / 10);
 const dummy2 = new THREE.Object3D();
 
@@ -245,7 +255,7 @@ const leavesMaterial3 = new THREE.ShaderMaterial({
   side: THREE.DoubleSide
 });
 
-const grassDensity3 = 250 // per 10x10 square
+const grassDensity3 = 150 // per 10x10 square
 const instanceNumber3 = grassDensity3 * (scene_width / 10) * (scene_length / 10);
 const dummy3 = new THREE.Object3D();
 
@@ -287,9 +297,3 @@ const animate = () => {
 }
 
 animate();
-
-// Timeline
-const tl = gsap.timeline({ defaults: { duration: 1 } })
-tl.fromTo(mesh.scale, { z: 0, x: 0, y: 0 }, { z: 1, x: 1, y: 1 })
-tl.fromTo('nav', { y: "-100%" }, { y: "0%" })
-tl.fromTo(".title", { opacity: 0 }, { opacity: 1 })
