@@ -2,26 +2,28 @@ import * as THREE from "three";
 import './style.css'
 import gsap from "gsap"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 import grassVertexShader from './shaders/grass_vertex.glsl'
 import grassFragmentShader from './shaders/grass_fragment.glsl'
+import { CharacterControls } from './characterControls';
 
 // Scene
 const scene = new THREE.Scene()
-const scene_width = 20
-const scene_length = 20
+const scene_width = 100
+const scene_length = 100
 
 // Grid Helper
 const grassFloorTexture = new THREE.TextureLoader().load("textures/grass_floor.jpg");
 grassFloorTexture.wrapS = grassFloorTexture.wrapT = THREE.RepeatWrapping;
-grassFloorTexture.repeat.set( 100, 100 );
-var grassFloorMaterial = new THREE.MeshStandardMaterial( { map: grassFloorTexture, side: THREE.DoubleSide } );
+grassFloorTexture.repeat.set(100, 100);
+var grassFloorMaterial = new THREE.MeshStandardMaterial({ map: grassFloorTexture, side: THREE.DoubleSide });
 
-var mesh = new THREE.Mesh( new THREE.PlaneGeometry( scene_width, scene_length ), grassFloorMaterial );
+var mesh = new THREE.Mesh(new THREE.PlaneGeometry(scene_width, scene_length), grassFloorMaterial);
 mesh.position.y = 0.0;
 mesh.rotation.x = - Math.PI / 2;
 mesh.receiveShadow = true;
-scene.add( mesh );
+scene.add(mesh);
 
 // Sizes
 const sizes = {
@@ -48,12 +50,47 @@ renderer.setSize(sizes.width, sizes.height)
 renderer.render(scene, camera)
 
 // Controls
-const controls = new OrbitControls(camera, canvas)
-controls.enableDamping = true
-controls.enablePan = true
-controls.enableZoom = true
-//controls.autoRotate = true
-//controls.autoRotateSpeed = 5
+const orbitControls = new OrbitControls(camera, canvas);
+orbitControls.enableDamping = true
+orbitControls.minDistance = 5
+orbitControls.maxDistance = 50
+orbitControls.enablePan = false
+orbitControls.enableZoom = true
+orbitControls.maxPolarAngle = Math.PI / 2 - 0.05
+orbitControls.update();
+
+// Character control keys
+const keysPressed = {}
+window.addEventListener('keydown', (event) => {
+  if (event.shiftKey && characterControls) {
+    characterControls.switchRunToggle()
+  }
+  keysPressed[event.key.toLowerCase()] = true
+}, false);
+window.addEventListener('keyup', (event) => {
+  keysPressed[event.key.toLowerCase()] = false
+}, false);
+
+// Model with animations
+var characterControls
+new GLTFLoader().load("models/Soldier.glb", function (gltf) {
+  const model = gltf.scene
+  model.traverse(function (obj) {
+    if (obj.isMesh) obj.castShadow = true;
+  });
+  scene.add(model);
+
+  const gltfAnimations = gltf.animations;
+  console.log(gltfAnimations)
+  const mixer = new THREE.AnimationMixer(model);
+  const animationsMap = new Map()
+  gltfAnimations.filter(a => a.name != 'TPose').forEach((a) => {
+    console.log(a.name)
+    animationsMap.set(a.name, mixer.clipAction(a))
+  })
+
+  characterControls = new CharacterControls(model, mixer, animationsMap, orbitControls, camera, 'Idle')
+})
 
 // Resize
 window.addEventListener('resize', () => {
@@ -237,7 +274,10 @@ for (let i = 0; i < instanceNumber3; i++) {
 }
 
 const animate = () => {
-  controls.update()
+  let mixerUpdateDelta = clock.getDelta();
+  if (characterControls) {
+    characterControls.update(mixerUpdateDelta, keysPressed);
+  }
   uniformData1.u_time.value = clock.getElapsedTime();
   uniformData2.u_time.value = clock.getElapsedTime();
   uniformData3.u_time.value = clock.getElapsedTime();
