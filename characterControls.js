@@ -22,8 +22,8 @@ export class CharacterControls {
     
     // constants
     fadeDuration = 0.2
-    runVelocity = 5
-    walkVelocity = 2
+    runVelocity = 9
+    walkVelocity = 3
 
     constructor(model,
         mixer, animationsMap,
@@ -56,12 +56,14 @@ export class CharacterControls {
         } else if (directionPressed) {
             play = 'Walk'
         } else {
-            play = 'Idle'
+            play = 'Survey'
         }
 
         if (this.currentAction != play) {
             const toPlay = this.animationsMap.get(play)
             const current = this.animationsMap.get(this.currentAction)
+
+            console.log(current)
 
             current.fadeOut(this.fadeDuration)
             toPlay.reset().fadeIn(this.fadeDuration).play();
@@ -80,7 +82,7 @@ export class CharacterControls {
             var directionOffset = this.directionOffset(keysPressed)
 
             // rotate model
-            this.rotateQuarternion.setFromAxisAngle(this.rotateAngle, angleYCameraDirection + directionOffset)
+            this.rotateQuarternion.setFromAxisAngle(this.rotateAngle, angleYCameraDirection + directionOffset + Math.PI)
             this.model.quaternion.rotateTowards(this.rotateQuarternion, 0.2)
 
             // calculate direction

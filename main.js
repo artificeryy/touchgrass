@@ -10,8 +10,8 @@ import { CharacterControls } from './characterControls';
 
 // Scene
 const scene = new THREE.Scene()
-const scene_width = 100
-const scene_length = 100
+const scene_width = 300
+const scene_length = 300
 
 // Grid Helper
 const grassFloorTexture = new THREE.TextureLoader().load("textures/grass_floor.jpg");
@@ -19,7 +19,7 @@ grassFloorTexture.wrapS = grassFloorTexture.wrapT = THREE.RepeatWrapping;
 grassFloorTexture.repeat.set(100, 100);
 var grassFloorMaterial = new THREE.MeshStandardMaterial({ map: grassFloorTexture, side: THREE.DoubleSide });
 
-var mesh = new THREE.Mesh(new THREE.PlaneGeometry(scene_width, scene_length), grassFloorMaterial);
+var mesh = new THREE.Mesh(new THREE.PlaneGeometry(scene_width * 10, scene_length * 10), grassFloorMaterial);
 mesh.position.y = 0.0;
 mesh.rotation.x = - Math.PI / 2;
 mesh.receiveShadow = true;
@@ -73,8 +73,9 @@ window.addEventListener('keyup', (event) => {
 
 // Model with animations
 var characterControls
-new GLTFLoader().load("models/Soldier.glb", function (gltf) {
+new GLTFLoader().load("models/Fox.glb", function (gltf) {
   const model = gltf.scene
+  model.scale.set(0.03, 0.03, 0.03)
   model.traverse(function (obj) {
     if (obj.isMesh) obj.castShadow = true;
   });
@@ -89,7 +90,7 @@ new GLTFLoader().load("models/Soldier.glb", function (gltf) {
     animationsMap.set(a.name, mixer.clipAction(a))
   })
 
-  characterControls = new CharacterControls(model, mixer, animationsMap, orbitControls, camera, 'Idle')
+  characterControls = new CharacterControls(model, mixer, animationsMap, orbitControls, camera, 'Survey')
 })
 
 // Resize
@@ -134,7 +135,7 @@ const leavesMaterial1 = new THREE.ShaderMaterial({
   side: THREE.DoubleSide
 });
 
-const grassDensity1 = 20000 // per 10x10 square
+const grassDensity1 = 2500 // per 10x10 square
 const instanceNumber1 = grassDensity1 * (scene_width / 10) * (scene_length / 10);
 const dummy1 = new THREE.Object3D();
 
@@ -189,7 +190,7 @@ const leavesMaterial2 = new THREE.ShaderMaterial({
   side: THREE.DoubleSide
 });
 
-const grassDensity2 = 1000 // per 10x10 square
+const grassDensity2 = 250 // per 10x10 square
 const instanceNumber2 = grassDensity2 * (scene_width / 10) * (scene_length / 10);
 const dummy2 = new THREE.Object3D();
 
@@ -244,7 +245,7 @@ const leavesMaterial3 = new THREE.ShaderMaterial({
   side: THREE.DoubleSide
 });
 
-const grassDensity3 = 1000 // per 10x10 square
+const grassDensity3 = 250 // per 10x10 square
 const instanceNumber3 = grassDensity3 * (scene_width / 10) * (scene_length / 10);
 const dummy3 = new THREE.Object3D();
 
